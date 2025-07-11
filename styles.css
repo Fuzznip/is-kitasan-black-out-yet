@@ -404,10 +404,10 @@ header {
 
 .stats-container {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     margin-bottom: 25px;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 15px;
 }
 
 .stat-item {
@@ -549,6 +549,14 @@ header {
     appearance: textfield;
 }
 
+.button-container {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
 .roll-button {
     background: linear-gradient(45deg, #ffd700, #ffed4e, #ffd700);
     background-size: 200% 200%;
@@ -563,8 +571,35 @@ header {
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
-    margin-bottom: 25px;
+    margin-bottom: 0;
     animation: shimmer 3s ease-in-out infinite;
+}
+
+.reset-button {
+    background: linear-gradient(45deg, #b74f45, #ff8533, #c73f3f);
+    background-size: 200% 200%;
+    border: none;
+    border-radius: 25px;
+    padding: 15px 30px;
+    font-family: 'Orbitron', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+.reset-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(204, 153, 0, 0.4);
+}
+
+.reset-button:active {
+    transform: scale(0.95);
 }
 
 .roll-button:hover {
@@ -597,8 +632,21 @@ header {
     left: 100%;
 }
 
+.reset-button:hover .button-glow {
+    left: 100%;
+}
+
 .luck-meter {
     margin-top: 20px;
+}
+
+.overall-percentile {
+    font-size: 0.9rem;
+    color: #b0b0b0;
+    font-weight: 500;
+    margin-bottom: 8px;
+    text-align: center;
+    font-family: 'Orbitron', monospace;
 }
 
 .luck-bar {
@@ -769,7 +817,17 @@ header {
         max-width: 200px;
     }
     
+    .button-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
     .roll-button {
+        padding: 12px 25px;
+        font-size: 1rem;
+    }
+    
+    .reset-button {
         padding: 12px 25px;
         font-size: 1rem;
     }

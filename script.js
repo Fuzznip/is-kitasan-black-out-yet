@@ -198,7 +198,6 @@ function createGoldenSparkles(element) {
 }
 
 // Roll simulator variables
-let rollCount = 0;
 let totalKitasanCount = 0;
 let totalPulls = 0;
 let rollHistory = [];
@@ -206,6 +205,7 @@ let rollHistory = [];
 // Roll simulator functionality
 function initRollSimulator() {
     const rollButton = document.getElementById('rollButton');
+    const resetButton = document.getElementById('resetButton');
     const pullCountSlider = document.getElementById('pullCountSlider');
     const pullCountNumber = document.getElementById('pullCountNumber');
     
@@ -214,6 +214,14 @@ function initRollSimulator() {
             event.preventDefault();
             event.stopPropagation();
             performRoll();
+        });
+    }
+    
+    if (resetButton) {
+        resetButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            resetStats();
         });
     }
     
@@ -237,6 +245,22 @@ function updateButtonText() {
     }
 }
 
+function resetStats() {
+    totalKitasanCount = 0;
+    totalPulls = 0;
+    rollHistory = [];
+    
+    // Update display
+    updateStats();
+    updateLuckMeter();
+    
+    // Hide roll results
+    const resultsDiv = document.getElementById('rollResults');
+    if (resultsDiv) {
+        resultsDiv.style.display = 'none';
+    }
+}
+
 function getPullCount() {
     const pullCountNumber = document.getElementById('pullCountNumber');
     return pullCountNumber ? parseInt(pullCountNumber.value) || 50 : 50;
@@ -256,7 +280,6 @@ function performRoll() {
     
     // Simulate rolling delay
     setTimeout(() => {
-        rollCount++;
         let kitasanPulled = 0;
         
         // Perform pulls with 0.75% chance each
@@ -271,9 +294,9 @@ function performRoll() {
         
         // Store this roll result
         rollHistory.push({
-            rollNumber: rollCount,
+            rollNumber: rollHistory.length + 1,
             kitasanCount: kitasanPulled,
-            pullsToGet: kitasanPulled > 0 ? rollCount : null,
+            pullsToGet: kitasanPulled > 0 ? rollHistory.length + 1 : null,
             pullCount: pullCount
         });
         
@@ -289,7 +312,6 @@ function performRoll() {
 }
 
 function updateStats() {
-    document.getElementById('rollCount').textContent = rollCount;
     document.getElementById('kitasanCount').textContent = totalKitasanCount;
     document.getElementById('totalPulls').textContent = totalPulls;
 }
@@ -306,48 +328,49 @@ function showRollResult(kitasanPulled, pullCount = 50) {
     percentile = calculatePercentile(kitasanPulled, pullCount);
     
     // Extract the percentile rank for determining message tone
-    const percentileMatch = percentile.match(/Top ([\d.]+)%|Bottom ([\d.]+)%/);
-    let percentileRank = 0;
-    let isBottom = false;
+    const percentileMatch = percentile.match(/([\d.]+)(?:st|nd|rd|th) percentile/);
+    let percentileValue = 50; // Default to median
     
     if (percentileMatch) {
-        if (percentileMatch[1]) {
-            percentileRank = parseFloat(percentileMatch[1]);
-        } else if (percentileMatch[2]) {
-            percentileRank = parseFloat(percentileMatch[2]);
-            isBottom = true;
-        }
+        percentileValue = parseFloat(percentileMatch[1]);
     }
     
-    // Generate message based on luck level, not just raw count
+    // Generate message based on luck level
     if (kitasanPulled === 0) {
         message = '💔 No Kitasan Black this time...';
-    } else if (isBottom || percentileRank > 50) {
-        // Bad to average luck
+    } else if (percentileValue <= 25) {
+        // Bad luck (bottom 25%)
         if (kitasanPulled === 1) {
             message = '😐 Got 1 Kitasan Black (below average luck)';
         } else {
             message = `😐 Got ${kitasanPulled} Kitasan Blacks (below average luck)`;
         }
-    } else if (percentileRank > 10) {
-        // Good luck
+    } else if (percentileValue <= 75) {
+        // Average luck (25th-75th percentile)
         if (kitasanPulled === 1) {
-            message = '� Got 1 Kitasan Black (good luck!)';
+            message = '🙂 Got 1 Kitasan Black (average luck)';
+        } else {
+            message = `🙂 Got ${kitasanPulled} Kitasan Blacks (average luck)`;
+        }
+    } else if (percentileValue <= 90) {
+        // Good luck (75th-90th percentile)
+        if (kitasanPulled === 1) {
+            message = '😊 Got 1 Kitasan Black (good luck!)';
         } else {
             message = `🎉 Got ${kitasanPulled} Kitasan Blacks (good luck!)`;
         }
-    } else if (percentileRank > 1) {
-        // Very lucky
+    } else if (percentileValue <= 99) {
+        // Very lucky (90th-99th percentile)
         if (kitasanPulled === 1) {
             message = '🌟 Got 1 Kitasan Black (very lucky!)';
         } else {
             message = `🌟 Amazing! ${kitasanPulled} Kitasan Blacks (very lucky!)`;
         }
-    } else if (percentileRank > 0.1) {
-        // Extremely lucky
+    } else if (percentileValue <= 99.9) {
+        // Extremely lucky (99th-99.9th percentile)
         message = `✨ INCREDIBLE! ${kitasanPulled} Kitasan Black${kitasanPulled > 1 ? 's' : ''} (extremely lucky!)`;
     } else {
-        // Legendary luck
+        // Legendary luck (99.9th+ percentile)
         message = `🎆 LEGENDARY! ${kitasanPulled} Kitasan Black${kitasanPulled > 1 ? 's' : ''} (legendary luck!)`;
     }
     
@@ -355,8 +378,8 @@ function showRollResult(kitasanPulled, pullCount = 50) {
     percentileText.textContent = percentile;
     resultsDiv.style.display = 'block';
     
-    // Add special effects based on luck level, not just count
-    const shouldCelebrate = (!isBottom && percentileRank <= 10) || kitasanPulled >= 3;
+    // Add special effects based on luck level
+    const shouldCelebrate = percentileValue >= 90 || kitasanPulled >= 3;
     if (shouldCelebrate) {
         createCelebrationEffect(kitasanPulled);
     }
@@ -388,54 +411,138 @@ function calculatePercentile(kitasanCount, pullCount = 50) {
         cumulativeProbability += binomialProbability(pullCount, i, p);
     }
     
-    // Calculate probability of getting exactly this many
-    const exactProbability = binomialProbability(pullCount, kitasanCount, p);
+    // Convert to percentile (0-100)
+    const percentile = cumulativeProbability * 100;
     
-    // Calculate percentile ranking (probability of getting this many or more)
-    const percentileRank = (1 - cumulativeProbability + exactProbability) * 100;
-    
-    let percentile;
-    if (kitasanCount === 0) {
-        const zeroProb = binomialProbability(pullCount, 0, p) * 100;
-        percentile = `Bottom ${zeroProb.toFixed(1)}% (Ouch...)`;
-    } else if (percentileRank >= 10) {
-        percentile = `Top ${percentileRank.toFixed(1)}%`;
-    } else if (percentileRank >= 1) {
-        percentile = `Top ${percentileRank.toFixed(2)}%`;
-    } else if (percentileRank >= 0.1) {
-        percentile = `Top ${percentileRank.toFixed(3)}%`;
-    } else {
-        percentile = `Top ${percentileRank.toFixed(4)}%`;
+    // Format percentile with appropriate precision and ordinal suffix
+    function getOrdinalSuffix(num) {
+        const j = num % 10;
+        const k = num % 100;
+        if (j === 1 && k !== 11) return 'st';
+        if (j === 2 && k !== 12) return 'nd';
+        if (j === 3 && k !== 13) return 'rd';
+        return 'th';
     }
     
-    return percentile;
+    let formattedPercentile;
+    if (percentile >= 99.9) {
+        formattedPercentile = `99.9${getOrdinalSuffix(99)}+ percentile`;
+    } else if (percentile >= 99) {
+        const rounded = Math.round(percentile * 10) / 10;
+        formattedPercentile = `${rounded.toFixed(1)}${getOrdinalSuffix(Math.floor(rounded))} percentile`;
+    } else if (percentile >= 90) {
+        const rounded = Math.round(percentile);
+        formattedPercentile = `${rounded}${getOrdinalSuffix(rounded)} percentile`;
+    } else if (percentile >= 10) {
+        const rounded = Math.round(percentile);
+        formattedPercentile = `${rounded}${getOrdinalSuffix(rounded)} percentile`;
+    } else if (percentile >= 1) {
+        const rounded = Math.round(percentile * 10) / 10;
+        formattedPercentile = `${rounded.toFixed(1)}${getOrdinalSuffix(Math.floor(rounded))} percentile`;
+    } else if (percentile >= 0.1) {
+        const rounded = Math.round(percentile * 100) / 100;
+        formattedPercentile = `${rounded.toFixed(2)}${getOrdinalSuffix(Math.floor(rounded))} percentile`;
+    } else {
+        const rounded = Math.round(percentile * 1000) / 1000;
+        formattedPercentile = `${rounded.toFixed(3)}${getOrdinalSuffix(Math.floor(rounded))} percentile`;
+    }
+    
+    return formattedPercentile;
 }
 
 function updateLuckMeter() {
     const luckFill = document.getElementById('luckFill');
     const luckText = document.getElementById('luckText');
+    const overallPercentile = document.getElementById('overallPercentile');
     
-    if (totalKitasanCount === 0 && rollCount > 0) {
+    // Update overall percentile display
+    if (totalPulls >= 50) {
+        const overallPercentileValue = calculatePercentile(totalKitasanCount, totalPulls);
+        overallPercentile.textContent = `Overall Luck: ${overallPercentileValue}`;
+    } else if (totalPulls > 0) {
+        overallPercentile.textContent = `Overall Luck: ${totalKitasanCount}/${totalPulls} pulls (need 50+ for percentile)`;
+    } else {
+        overallPercentile.textContent = 'Overall Luck: Not enough data';
+    }
+    
+    if (totalKitasanCount === 0 && totalPulls > 0) {
         luckFill.style.width = '15%';
         luckFill.style.background = '#ff4444';
         luckText.textContent = 'Keep trying!';
-    } else if (rollCount === 0) {
+    } else if (totalPulls === 0) {
         luckFill.style.width = '5%';
         luckFill.style.background = '#888';
         luckText.textContent = 'Try your luck!';
+    } else if (totalPulls >= 50) {
+        // Use percentile-based system for enough data
+        const overallPercentileText = calculatePercentile(totalKitasanCount, totalPulls);
+        const percentileMatch = overallPercentileText.match(/([\d.]+)(?:st|nd|rd|th) percentile/);
+        let percentileValue = 50; // Default to median
+        
+        if (percentileMatch) {
+            percentileValue = parseFloat(percentileMatch[1]);
+        }
+        
+        // Set width based on percentile with better scaling
+        let widthPercentage;
+        if (percentileValue >= 99.9) {
+            widthPercentage = 100;
+        } else if (percentileValue >= 99) {
+            widthPercentage = 95;
+        } else if (percentileValue >= 95) {
+            widthPercentage = 90;
+        } else if (percentileValue >= 80) {
+            widthPercentage = 80;
+        } else if (percentileValue >= 60) {
+            widthPercentage = Math.max(60, percentileValue);
+        } else if (percentileValue >= 20) {
+            widthPercentage = Math.max(30, percentileValue * 0.8);
+        } else {
+            widthPercentage = Math.max(15, percentileValue * 0.75);
+        }
+        
+        luckFill.style.width = `${widthPercentage}%`;
+        
+        // Set color and text based on percentile thresholds with more granular feedback
+        if (percentileValue >= 99.9) {
+            luckFill.style.background = 'linear-gradient(90deg, #ff00ff, #ffd700, #00ff88)';
+            luckText.textContent = 'Legendary luck!';
+        } else if (percentileValue >= 99) {
+            luckFill.style.background = 'linear-gradient(90deg, #ffd700, #00ff88, #00ffff)';
+            luckText.textContent = 'Extremely lucky!';
+        } else if (percentileValue >= 95) {
+            luckFill.style.background = 'linear-gradient(90deg, #ffd700, #00ff88)';
+            luckText.textContent = 'Very lucky!';
+        } else if (percentileValue >= 80) {
+            luckFill.style.background = 'linear-gradient(90deg, #ffaa00, #ffd700)';
+            luckText.textContent = 'Incredible luck!';
+        } else if (percentileValue >= 60) {
+            luckFill.style.background = 'linear-gradient(90deg, #ff8800, #ffaa00)';
+            luckText.textContent = 'Above average luck!';
+        } else if (percentileValue >= 40) {
+            luckFill.style.background = 'linear-gradient(90deg, #ff8800, #ffaa00)';
+            luckText.textContent = 'Average luck';
+        } else if (percentileValue >= 20) {
+            luckFill.style.background = 'linear-gradient(90deg, #ff6600, #ff8800)';
+            luckText.textContent = 'Below average luck';
+        } else {
+            luckFill.style.background = '#ff4444';
+            luckText.textContent = 'Bad luck streak';
+        }
     } else {
-        // Calculate actual pull rate vs expected rate (0.75% per pull)
+        // Fallback for insufficient data (less than 50 pulls)
+        // Use simple ratio-based calculation
         const actualRate = (totalKitasanCount / totalPulls) * 100;
         const expectedRate = 0.75;
         const luckRatio = actualRate / expectedRate;
         
-        // Set width based on how many Kitasan Blacks obtained
-        const widthPercentage = Math.min(Math.max((totalKitasanCount / rollCount) * 20 + 20, 15), 100);
+        // Set width based on how many Kitasan Blacks obtained relative to total pulls
+        const widthPercentage = Math.min(Math.max((totalKitasanCount / (totalPulls / 50)) * 20 + 20, 15), 100);
         luckFill.style.width = `${widthPercentage}%`;
         
         if (luckRatio >= 2.0) {
             luckFill.style.background = 'linear-gradient(90deg, #ffd700, #00ff88)';
-            luckText.textContent = 'Incredible luck!';
+            luckText.textContent = 'Great luck!';
         } else if (luckRatio >= 1.3) {
             luckFill.style.background = 'linear-gradient(90deg, #ffaa00, #ffd700)';
             luckText.textContent = 'Above average luck!';
@@ -478,6 +585,7 @@ function createCelebrationEffect(kitasanCount = 1) {
         setTimeout(() => {
             const particle = document.createElement('img');
             particle.src = 'images/karat.png';
+            particle.alt = '';
             
             // Add special effects for higher intensities
             let specialEffects = '';
@@ -487,8 +595,13 @@ function createCelebrationEffect(kitasanCount = 1) {
                 `;
             }
             if (intensity >= 5) {
+                // Use filter glow instead of box-shadow to avoid clipping issues
                 specialEffects += `
-                    box-shadow: 0 0 20px #ffd700, 0 0 40px #ffd700, 0 0 60px #ffd700;
+                    filter: drop-shadow(0 0 ${15 + intensity * 5}px rgba(255, 215, 0, ${0.9 + intensity * 0.02})) drop-shadow(0 0 20px #ffd700) drop-shadow(0 0 40px #ffd700);
+                `;
+            } else {
+                specialEffects += `
+                    filter: drop-shadow(0 0 ${15 + intensity * 5}px rgba(255, 215, 0, ${0.9 + intensity * 0.02}));
                 `;
             }
             
@@ -500,7 +613,9 @@ function createCelebrationEffect(kitasanCount = 1) {
                 z-index: 2000;
                 left: ${Math.random() * window.innerWidth}px;
                 top: -${particleSize}px;
-                filter: drop-shadow(0 0 ${15 + intensity * 5}px rgba(255, 215, 0, ${0.9 + intensity * 0.02}));
+                background: transparent;
+                border: none;
+                outline: none;
                 ${specialEffects}
             `;
             
@@ -557,6 +672,7 @@ function createFireworkBursts(intensity) {
                 
                 const burstParticle = document.createElement('img');
                 burstParticle.src = 'images/karat.png';
+                burstParticle.alt = '';
                 burstParticle.style.cssText = `
                     position: fixed;
                     width: 25px;
@@ -565,7 +681,10 @@ function createFireworkBursts(intensity) {
                     z-index: 2001;
                     left: ${centerX}px;
                     top: ${centerY}px;
-                    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 1));
+                    background: transparent;
+                    border: none;
+                    outline: none;
+                    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 1)) drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
                 `;
                 
                 document.body.appendChild(burstParticle);

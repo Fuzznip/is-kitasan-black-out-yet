@@ -102,10 +102,6 @@
         
         <div class="stats-container">
             <div class="stat-item">
-                <span class="stat-number" id="rollCount">0</span>
-                <span class="stat-label">Rolls</span>
-            </div>
-            <div class="stat-item">
                 <span class="stat-number" id="kitasanCount">0</span>
                 <span class="stat-label">Kitasan Blacks</span>
             </div>
@@ -128,12 +124,19 @@
             </div>
         </div>
 
-        <button class="roll-button" id="rollButton">
-            <span class="button-text">ROLL (50 PULLS)</span>
-            <span class="button-glow"></span>
-        </button>
+        <div class="button-container">
+            <button class="roll-button" id="rollButton">
+                <span class="button-text">ROLL (50 PULLS)</span>
+                <span class="button-glow"></span>
+            </button>
+            <button class="reset-button" id="resetButton">
+                <span class="reset-text">RESET</span>
+                <span class="button-glow"></span>
+            </button>
+        </div>
 
         <div class="luck-meter">
+            <div class="overall-percentile" id="overallPercentile">Overall Luck: Not enough data</div>
             <div class="luck-bar">
                 <div class="luck-fill" id="luckFill"></div>
             </div>
