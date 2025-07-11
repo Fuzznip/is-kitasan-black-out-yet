@@ -96,14 +96,14 @@
         <div class="coming-soon-banner">
             <span>PRAY FOR 0.75%</span>
         </div>
-        <div class="reroll-simulator">
-        <h2 class="simulator-title">REROLL SIMULATOR</h2>
+        <div class="roll-simulator">
+        <h2 class="simulator-title">ROLL SIMULATOR</h2>
         <p class="simulator-subtitle">Practice your luck for the real release!</p>
         
         <div class="stats-container">
             <div class="stat-item">
-                <span class="stat-number" id="rerollCount">0</span>
-                <span class="stat-label">Rerolls</span>
+                <span class="stat-number" id="rollCount">0</span>
+                <span class="stat-label">Rolls</span>
             </div>
             <div class="stat-item">
                 <span class="stat-number" id="kitasanCount">0</span>
@@ -115,13 +115,21 @@
             </div>
         </div>
 
-        <div class="reroll-results" id="rerollResults" style="display: none;">
+        <div class="roll-results" id="rollResults" style="display: none;">
             <div class="result-text" id="resultText"></div>
             <div class="percentile-text" id="percentileText"></div>
         </div>
 
-        <button class="reroll-button" id="rerollButton">
-            <span class="button-text">REROLL (50 PULLS)</span>
+        <div class="pull-count-control">
+            <label for="pullCountSlider" class="pull-count-label">Pulls per Roll:</label>
+            <div class="pull-count-input-container">
+                <input type="range" id="pullCountSlider" class="pull-count-slider" min="10" max="200" value="50" step="10">
+                <input type="number" id="pullCountNumber" class="pull-count-number" min="10" max="200" value="50" step="10" readonly>
+            </div>
+        </div>
+
+        <button class="roll-button" id="rollButton">
+            <span class="button-text">ROLL (50 PULLS)</span>
             <span class="button-glow"></span>
         </button>
 

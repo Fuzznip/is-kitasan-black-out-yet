@@ -374,8 +374,8 @@ header {
     50% { opacity: 1; transform: scale(1.05); }
 }
 
-/* Reroll Simulator */
-.reroll-simulator {
+/* Roll Simulator */
+.roll-simulator {
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
     border: 2px solid rgba(255, 215, 0, 0.3);
     border-radius: 25px;
@@ -436,7 +436,7 @@ header {
     font-weight: 600;
 }
 
-.reroll-results {
+.roll-results {
     margin-bottom: 25px;
     padding: 20px;
     background: rgba(0, 255, 136, 0.1);
@@ -463,7 +463,93 @@ header {
     font-weight: 600;
 }
 
-.reroll-button {
+.pull-count-control {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.pull-count-label {
+    display: block;
+    font-size: 1rem;
+    color: #ffffff;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.pull-count-input-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.pull-count-slider {
+    width: 200px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    outline: none;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    cursor: pointer;
+}
+
+.pull-count-slider:hover {
+    opacity: 1;
+}
+
+.pull-count-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(45deg, #ffd700, #ffed4e);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(255, 215, 0, 0.4);
+}
+
+.pull-count-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(45deg, #ffd700, #ffed4e);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(255, 215, 0, 0.4);
+}
+
+.pull-count-number {
+    width: 80px;
+    padding: 8px 12px;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.pull-count-number:focus {
+    border-color: #ffd700;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.pull-count-number::-webkit-outer-spin-button,
+.pull-count-number::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.pull-count-number[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.roll-button {
     background: linear-gradient(45deg, #ffd700, #ffed4e, #ffd700);
     background-size: 200% 200%;
     border: none;
@@ -481,16 +567,16 @@ header {
     animation: shimmer 3s ease-in-out infinite;
 }
 
-.reroll-button:hover {
+.roll-button:hover {
     transform: scale(1.05);
     box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
 }
 
-.reroll-button:active {
+.roll-button:active {
     transform: scale(0.95);
 }
 
-.reroll-button:disabled {
+.roll-button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
@@ -507,7 +593,7 @@ header {
     pointer-events: none;
 }
 
-.reroll-button:hover .button-glow {
+.roll-button:hover .button-glow {
     left: 100%;
 }
 
@@ -583,13 +669,22 @@ header {
         height: 28px;
     }
     
-    .reroll-simulator {
+    .roll-simulator {
         padding: 25px 20px;
         margin-top: 30px;
     }
     
     .simulator-title {
         font-size: 1.5rem;
+    }
+    
+    .pull-count-input-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .pull-count-slider {
+        width: 250px;
     }
     
     .stats-container {
@@ -646,12 +741,22 @@ header {
         font-size: 1rem;
     }
     
-    .reroll-simulator {
+    .roll-simulator {
         padding: 20px 15px;
     }
     
     .simulator-title {
         font-size: 1.3rem;
+    }
+    
+    .pull-count-slider {
+        width: 200px;
+    }
+    
+    .pull-count-number {
+        width: 70px;
+        padding: 6px 8px;
+        font-size: 0.9rem;
     }
     
     .stats-container {
@@ -664,7 +769,7 @@ header {
         max-width: 200px;
     }
     
-    .reroll-button {
+    .roll-button {
         padding: 12px 25px;
         font-size: 1rem;
     }

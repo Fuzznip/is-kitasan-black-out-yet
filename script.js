@@ -100,7 +100,7 @@ function init() {
 // Add some interactive effects
 document.addEventListener('DOMContentLoaded', function() {
     init();
-    initRerollSimulator();
+    initRollSimulator();
     
     // Add click effects to time units
     const timeUnits = document.querySelectorAll('.time-unit');
@@ -197,41 +197,70 @@ function createGoldenSparkles(element) {
     }
 }
 
-// Reroll simulator variables
-let rerollCount = 0;
+// Roll simulator variables
+let rollCount = 0;
 let totalKitasanCount = 0;
 let totalPulls = 0;
-let rerollHistory = [];
+let rollHistory = [];
 
-// Reroll simulator functionality
-function initRerollSimulator() {
-    const rerollButton = document.getElementById('rerollButton');
-    if (rerollButton) {
-        rerollButton.addEventListener('click', function(event) {
+// Roll simulator functionality
+function initRollSimulator() {
+    const rollButton = document.getElementById('rollButton');
+    const pullCountSlider = document.getElementById('pullCountSlider');
+    const pullCountNumber = document.getElementById('pullCountNumber');
+    
+    if (rollButton) {
+        rollButton.addEventListener('click', function(event) {
             event.preventDefault();
             event.stopPropagation();
-            performReroll();
+            performRoll();
         });
+    }
+    
+    // Sync slider and number input
+    if (pullCountSlider && pullCountNumber) {
+        pullCountSlider.addEventListener('input', function() {
+            pullCountNumber.value = this.value;
+            updateButtonText();
+        });
+        
+        // Initialize button text
+        updateButtonText();
     }
 }
 
-function performReroll() {
-    const button = document.getElementById('rerollButton');
+function updateButtonText() {
+    const pullCount = getPullCount();
+    const buttonText = document.querySelector('.button-text');
+    if (buttonText) {
+        buttonText.textContent = `ROLL (${pullCount} PULLS)`;
+    }
+}
+
+function getPullCount() {
+    const pullCountNumber = document.getElementById('pullCountNumber');
+    return pullCountNumber ? parseInt(pullCountNumber.value) || 50 : 50;
+}
+
+function performRoll() {
+    const button = document.getElementById('rollButton');
     
     if (!button) {
         return;
     }
+    
+    const pullCount = getPullCount();
     
     button.disabled = true;
     button.querySelector('.button-text').textContent = 'ROLLING...';
     
     // Simulate rolling delay
     setTimeout(() => {
-        rerollCount++;
+        rollCount++;
         let kitasanPulled = 0;
         
-        // Perform 50 pulls with 0.75% chance each
-        for (let i = 0; i < 50; i++) {
+        // Perform pulls with 0.75% chance each
+        for (let i = 0; i < pullCount; i++) {
             totalPulls++;
             const random = Math.random();
             if (random < 0.0075) { // 0.75% chance
@@ -240,90 +269,143 @@ function performReroll() {
             }
         }
         
-        // Store this reroll result
-        rerollHistory.push({
-            rerollNumber: rerollCount,
+        // Store this roll result
+        rollHistory.push({
+            rollNumber: rollCount,
             kitasanCount: kitasanPulled,
-            pullsToGet: kitasanPulled > 0 ? rerollCount : null
+            pullsToGet: kitasanPulled > 0 ? rollCount : null,
+            pullCount: pullCount
         });
         
         // Update display
         updateStats();
-        showRerollResult(kitasanPulled);
+        showRollResult(kitasanPulled, pullCount);
         updateLuckMeter();
         
         // Re-enable button
         button.disabled = false;
-        button.querySelector('.button-text').textContent = 'REROLL (50 PULLS)';
+        updateButtonText();
     }, 1500);
 }
 
 function updateStats() {
-    document.getElementById('rerollCount').textContent = rerollCount;
+    document.getElementById('rollCount').textContent = rollCount;
     document.getElementById('kitasanCount').textContent = totalKitasanCount;
     document.getElementById('totalPulls').textContent = totalPulls;
 }
 
-function showRerollResult(kitasanPulled) {
-    const resultsDiv = document.getElementById('rerollResults');
+function showRollResult(kitasanPulled, pullCount = 50) {
+    const resultsDiv = document.getElementById('rollResults');
     const resultText = document.getElementById('resultText');
     const percentileText = document.getElementById('percentileText');
     
     let message = '';
     let percentile = '';
     
+    // Get the percentile calculation first
+    percentile = calculatePercentile(kitasanPulled, pullCount);
+    
+    // Extract the percentile rank for determining message tone
+    const percentileMatch = percentile.match(/Top ([\d.]+)%|Bottom ([\d.]+)%/);
+    let percentileRank = 0;
+    let isBottom = false;
+    
+    if (percentileMatch) {
+        if (percentileMatch[1]) {
+            percentileRank = parseFloat(percentileMatch[1]);
+        } else if (percentileMatch[2]) {
+            percentileRank = parseFloat(percentileMatch[2]);
+            isBottom = true;
+        }
+    }
+    
+    // Generate message based on luck level, not just raw count
     if (kitasanPulled === 0) {
         message = '💔 No Kitasan Black this time...';
-        percentile = calculatePercentile(0);
-    } else if (kitasanPulled === 1) {
-        message = '🎉 Got 1 Kitasan Black!';
-        percentile = calculatePercentile(1);
-    } else if (kitasanPulled === 2) {
-        message = '🌟 Amazing! 2 Kitasan Blacks!';
-        percentile = calculatePercentile(2);
-    } else if (kitasanPulled >= 3) {
-        message = `✨ INCREDIBLE! ${kitasanPulled} Kitasan Blacks!`;
-        percentile = calculatePercentile(kitasanPulled);
+    } else if (isBottom || percentileRank > 50) {
+        // Bad to average luck
+        if (kitasanPulled === 1) {
+            message = '😐 Got 1 Kitasan Black (below average luck)';
+        } else {
+            message = `😐 Got ${kitasanPulled} Kitasan Blacks (below average luck)`;
+        }
+    } else if (percentileRank > 10) {
+        // Good luck
+        if (kitasanPulled === 1) {
+            message = '� Got 1 Kitasan Black (good luck!)';
+        } else {
+            message = `🎉 Got ${kitasanPulled} Kitasan Blacks (good luck!)`;
+        }
+    } else if (percentileRank > 1) {
+        // Very lucky
+        if (kitasanPulled === 1) {
+            message = '🌟 Got 1 Kitasan Black (very lucky!)';
+        } else {
+            message = `🌟 Amazing! ${kitasanPulled} Kitasan Blacks (very lucky!)`;
+        }
+    } else if (percentileRank > 0.1) {
+        // Extremely lucky
+        message = `✨ INCREDIBLE! ${kitasanPulled} Kitasan Black${kitasanPulled > 1 ? 's' : ''} (extremely lucky!)`;
+    } else {
+        // Legendary luck
+        message = `🎆 LEGENDARY! ${kitasanPulled} Kitasan Black${kitasanPulled > 1 ? 's' : ''} (legendary luck!)`;
     }
     
     resultText.textContent = message;
     percentileText.textContent = percentile;
     resultsDiv.style.display = 'block';
     
-    // Add special effects for rare pulls
-    if (kitasanPulled >= 2) {
-        createCelebrationEffect();
+    // Add special effects based on luck level, not just count
+    const shouldCelebrate = (!isBottom && percentileRank <= 10) || kitasanPulled >= 3;
+    if (shouldCelebrate) {
+        createCelebrationEffect(kitasanPulled);
     }
 }
 
-function calculatePercentile(kitasanCount) {
-    // Calculate probability and percentile based on binomial distribution
-    // For 50 pulls at 0.75% each:
-    // P(0) ≈ 69.26%
-    // P(1) ≈ 26.11% 
-    // P(2) ≈ 4.01%
-    // P(3) ≈ 0.49%
-    // P(4+) ≈ 0.13%
+function calculatePercentile(kitasanCount, pullCount = 50) {
+    // Calculate binomial probability for getting exactly k successes in n trials with probability p
+    function binomialProbability(n, k, p) {
+        if (k > n) return 0;
+        
+        // Calculate binomial coefficient (n choose k)
+        function binomialCoeff(n, k) {
+            if (k > n - k) k = n - k; // Take advantage of symmetry
+            let result = 1;
+            for (let i = 0; i < k; i++) {
+                result = result * (n - i) / (i + 1);
+            }
+            return result;
+        }
+        
+        return binomialCoeff(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
+    }
     
-    const probabilities = {
-        0: 69.26,
-        1: 26.11,
-        2: 4.01,
-        3: 0.49,
-        4: 0.13
-    };
+    const p = 0.0075; // 0.75% chance per pull
+    
+    // Calculate probability of getting exactly this many or fewer
+    let cumulativeProbability = 0;
+    for (let i = 0; i <= kitasanCount; i++) {
+        cumulativeProbability += binomialProbability(pullCount, i, p);
+    }
+    
+    // Calculate probability of getting exactly this many
+    const exactProbability = binomialProbability(pullCount, kitasanCount, p);
+    
+    // Calculate percentile ranking (probability of getting this many or more)
+    const percentileRank = (1 - cumulativeProbability + exactProbability) * 100;
     
     let percentile;
     if (kitasanCount === 0) {
-        percentile = `Bottom ${probabilities[0].toFixed(1)}% (Most common result)`;
-    } else if (kitasanCount === 1) {
-        percentile = `Top ${(100 - probabilities[0]).toFixed(1)}% (Good luck!)`;
-    } else if (kitasanCount === 2) {
-        percentile = `Top ${(probabilities[2] + probabilities[3] + probabilities[4]).toFixed(2)}% (Very lucky!)`;
-    } else if (kitasanCount === 3) {
-        percentile = `Top ${(probabilities[3] + probabilities[4]).toFixed(2)}% (Extremely lucky!)`;
+        const zeroProb = binomialProbability(pullCount, 0, p) * 100;
+        percentile = `Bottom ${zeroProb.toFixed(1)}% (Ouch...)`;
+    } else if (percentileRank >= 10) {
+        percentile = `Top ${percentileRank.toFixed(1)}%`;
+    } else if (percentileRank >= 1) {
+        percentile = `Top ${percentileRank.toFixed(2)}%`;
+    } else if (percentileRank >= 0.1) {
+        percentile = `Top ${percentileRank.toFixed(3)}%`;
     } else {
-        percentile = `Top ${probabilities[4].toFixed(2)}% (LEGENDARY LUCK!)`;
+        percentile = `Top ${percentileRank.toFixed(4)}%`;
     }
     
     return percentile;
@@ -333,62 +415,322 @@ function updateLuckMeter() {
     const luckFill = document.getElementById('luckFill');
     const luckText = document.getElementById('luckText');
     
-    if (totalKitasanCount === 0) {
-        luckFill.style.width = '10%';
+    if (totalKitasanCount === 0 && rollCount > 0) {
+        luckFill.style.width = '15%';
         luckFill.style.background = '#ff4444';
         luckText.textContent = 'Keep trying!';
+    } else if (rollCount === 0) {
+        luckFill.style.width = '5%';
+        luckFill.style.background = '#888';
+        luckText.textContent = 'Try your luck!';
     } else {
-        const luckPercentage = Math.min((totalKitasanCount / rerollCount) * 100 / 0.75, 100);
-        luckFill.style.width = `${Math.max(luckPercentage * 0.8, 20)}%`;
+        // Calculate actual pull rate vs expected rate (0.75% per pull)
+        const actualRate = (totalKitasanCount / totalPulls) * 100;
+        const expectedRate = 0.75;
+        const luckRatio = actualRate / expectedRate;
         
-        if (luckPercentage > 150) {
+        // Set width based on how many Kitasan Blacks obtained
+        const widthPercentage = Math.min(Math.max((totalKitasanCount / rollCount) * 20 + 20, 15), 100);
+        luckFill.style.width = `${widthPercentage}%`;
+        
+        if (luckRatio >= 2.0) {
             luckFill.style.background = 'linear-gradient(90deg, #ffd700, #00ff88)';
             luckText.textContent = 'Incredible luck!';
-        } else if (luckPercentage > 100) {
+        } else if (luckRatio >= 1.3) {
             luckFill.style.background = 'linear-gradient(90deg, #ffaa00, #ffd700)';
             luckText.textContent = 'Above average luck!';
-        } else if (luckPercentage > 50) {
+        } else if (luckRatio >= 0.7) {
             luckFill.style.background = 'linear-gradient(90deg, #ff8800, #ffaa00)';
             luckText.textContent = 'Average luck';
+        } else if (luckRatio >= 0.3) {
+            luckFill.style.background = 'linear-gradient(90deg, #ff6600, #ff8800)';
+            luckText.textContent = 'Below average luck';
         } else {
             luckFill.style.background = '#ff4444';
-            luckText.textContent = 'Below average luck';
+            luckText.textContent = 'Bad luck streak';
         }
     }
 }
 
-function createCelebrationEffect() {
+function createCelebrationEffect(kitasanCount = 1) {
+    // Scale celebration intensity based on number of Kitasan Blacks (1-5)
+    const intensity = Math.min(kitasanCount, 5);
+    
+    // Base values for 1 Kitasan Black
+    const baseParticles = 20;
+    const baseSize = 30;
+    const baseDuration = 3000;
+    const baseSpread = 100; // ms between particles
+    
+    // Scale factors based on intensity
+    const particleCount = baseParticles * intensity; // 20, 40, 60, 80, 100
+    const particleSize = baseSize + (intensity - 1) * 8; // 30, 38, 46, 54, 62
+    const animationDuration = baseDuration + (intensity - 1) * 1000; // 3s, 4s, 5s, 6s, 7s
+    const particleSpread = Math.max(baseSpread - (intensity - 1) * 15, 25); // Faster spawn for higher intensity
+    
+    // Add firework bursts for 4+ Kitasan Blacks
+    if (intensity >= 4) {
+        createFireworkBursts(intensity);
+    }
+    
     // Create golden particles across the screen for rare pulls
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < particleCount; i++) {
         setTimeout(() => {
             const particle = document.createElement('img');
             particle.src = 'images/karat.png';
+            
+            // Add special effects for higher intensities
+            let specialEffects = '';
+            if (intensity >= 3) {
+                specialEffects += `
+                    animation: pulse 0.5s ease-in-out infinite alternate;
+                `;
+            }
+            if (intensity >= 5) {
+                specialEffects += `
+                    box-shadow: 0 0 20px #ffd700, 0 0 40px #ffd700, 0 0 60px #ffd700;
+                `;
+            }
+            
             particle.style.cssText = `
                 position: fixed;
-                width: 15px;
-                height: 15px;
+                width: ${particleSize}px;
+                height: ${particleSize}px;
                 pointer-events: none;
                 z-index: 2000;
                 left: ${Math.random() * window.innerWidth}px;
-                top: -20px;
-                filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+                top: -${particleSize}px;
+                filter: drop-shadow(0 0 ${15 + intensity * 5}px rgba(255, 215, 0, ${0.9 + intensity * 0.02}));
+                ${specialEffects}
             `;
             
             document.body.appendChild(particle);
             
+            // Add rotation and falling animation
+            const rotationSpeed = 360 + (intensity - 1) * 180; // Faster rotation for more Kitasan Blacks
+            const fallDistance = window.innerHeight + particleSize + 50;
+            
             particle.animate([
                 { 
-                    transform: 'translateY(0px) rotate(0deg)', 
+                    transform: 'translateY(0px) rotate(0deg) scale(0.5)', 
                     opacity: 1 
                 },
                 { 
-                    transform: `translateY(${window.innerHeight + 50}px) rotate(360deg)`, 
+                    transform: `translateY(${fallDistance}px) rotate(${rotationSpeed}deg) scale(1.2)`, 
                     opacity: 0 
                 }
             ], {
-                duration: 3000 + Math.random() * 2000,
-                easing: 'ease-in'
+                duration: animationDuration + Math.random() * 2000,
+                easing: intensity >= 4 ? 'ease-out' : 'ease-in'
             }).onfinish = () => particle.remove();
-        }, i * 100);
+        }, i * particleSpread);
+    }
+    
+    // Add CSS keyframes for pulse animation if not already added
+    if (intensity >= 3 && !document.querySelector('style[data-celebration]')) {
+        const style = document.createElement('style');
+        style.setAttribute('data-celebration', 'true');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                100% { transform: scale(1.1); }
+            }
+        `;
+        document.head.appendChild(style);
     }
 }
+
+function createFireworkBursts(intensity) {
+    const burstCount = intensity - 2; // 2 bursts for 4 Kitasan, 3 for 5 Kitasan
+    
+    for (let burst = 0; burst < burstCount; burst++) {
+        setTimeout(() => {
+            const centerX = Math.random() * window.innerWidth;
+            const centerY = Math.random() * (window.innerHeight * 0.6) + window.innerHeight * 0.2;
+            
+            // Create burst particles
+            for (let i = 0; i < 12; i++) {
+                const angle = (i / 12) * Math.PI * 2;
+                const distance = 100 + Math.random() * 100;
+                const endX = centerX + Math.cos(angle) * distance;
+                const endY = centerY + Math.sin(angle) * distance;
+                
+                const burstParticle = document.createElement('img');
+                burstParticle.src = 'images/karat.png';
+                burstParticle.style.cssText = `
+                    position: fixed;
+                    width: 25px;
+                    height: 25px;
+                    pointer-events: none;
+                    z-index: 2001;
+                    left: ${centerX}px;
+                    top: ${centerY}px;
+                    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 1));
+                `;
+                
+                document.body.appendChild(burstParticle);
+                
+                burstParticle.animate([
+                    { 
+                        transform: 'translate(0px, 0px) scale(0.2)',
+                        opacity: 1
+                    },
+                    { 
+                        transform: `translate(${endX - centerX}px, ${endY - centerY}px) scale(1.5)`,
+                        opacity: 0
+                    }
+                ], {
+                    duration: 800,
+                    easing: 'ease-out'
+                }).onfinish = () => burstParticle.remove();
+            }
+        }, burst * 300);
+    }
+}
+
+// Test function to verify roll simulation probabilities
+function testRollProbabilities(numTests = 10000) {
+    console.log(`Running ${numTests} roll simulations to test probability convergence...`);
+    
+    const results = {
+        0: 0,
+        1: 0,
+        2: 0,
+        3: 0,
+        4: 0,
+        5: 0
+    };
+    
+    let totalKitasanPulled = 0;
+    let totalPullsInTest = 0;
+    
+    // Run the simulation many times
+    for (let test = 0; test < numTests; test++) {
+        let kitasanInThisRoll = 0;
+        
+        // Simulate 50 pulls with 0.75% chance each (same as the actual roll function)
+        for (let i = 0; i < 50; i++) {
+            totalPullsInTest++;
+            const random = Math.random();
+            if (random < 0.0075) { // 0.75% chance
+                kitasanInThisRoll++;
+                totalKitasanPulled++;
+            }
+        }
+        
+        // Count results (cap at 5+ for display purposes)
+        const resultKey = Math.min(kitasanInThisRoll, 5);
+        results[resultKey]++;
+    }
+    
+    // Calculate actual percentages
+    const actualPercentages = {};
+    for (let i = 0; i <= 5; i++) {
+        actualPercentages[i] = (results[i] / numTests) * 100;
+    }
+    
+    // Expected percentages (binomial distribution: n=50, p=0.0075)
+    const expectedPercentages = {
+        0: 69.26,
+        1: 26.11,
+        2: 4.01,
+        3: 0.49,
+        4: 0.13,
+        5: 0.03 // 4+ combined
+    };
+    
+    // Calculate overall pull rate
+    const actualPullRate = (totalKitasanPulled / totalPullsInTest) * 100;
+    const expectedPullRate = 0.75;
+    
+    // Display results
+    console.log('\n=== ROLL SIMULATION TEST RESULTS ===');
+    console.log(`Total simulations: ${numTests.toLocaleString()}`);
+    console.log(`Total pulls: ${totalPullsInTest.toLocaleString()}`);
+    console.log(`\nOverall Pull Rate:`);
+    console.log(`Expected: ${expectedPullRate}%`);
+    console.log(`Actual: ${actualPullRate.toFixed(3)}%`);
+    console.log(`Difference: ${(actualPullRate - expectedPullRate).toFixed(3)}%`);
+    
+    console.log('\nKitasan Blacks per 50-pull roll:');
+    console.log('Count | Expected % | Actual % | Difference | Occurrences');
+    console.log('------|-----------|----------|-----------|------------');
+    
+    for (let i = 0; i <= 5; i++) {
+        const label = i === 5 ? '5+' : i.toString();
+        const diff = actualPercentages[i] - expectedPercentages[i];
+        const diffStr = diff >= 0 ? `+${diff.toFixed(2)}` : diff.toFixed(2);
+        console.log(`  ${label}   |   ${expectedPercentages[i].toFixed(2)}%   |  ${actualPercentages[i].toFixed(2)}%  |   ${diffStr}%   |   ${results[i].toLocaleString()}`);
+    }
+    
+    // Calculate chi-square test statistic for goodness of fit
+    let chiSquare = 0;
+    for (let i = 0; i <= 4; i++) { // Don't include 5+ in chi-square as it's a catch-all
+        const expected = (expectedPercentages[i] / 100) * numTests;
+        const actual = results[i];
+        chiSquare += Math.pow(actual - expected, 2) / expected;
+    }
+    
+    console.log(`\nChi-square statistic: ${chiSquare.toFixed(3)}`);
+    console.log('(Lower values indicate better fit to expected distribution)');
+    
+    // Return results for programmatic use
+    return {
+        numTests,
+        actualPercentages,
+        expectedPercentages,
+        actualPullRate,
+        expectedPullRate,
+        chiSquare,
+        results
+    };
+}
+
+// Function to run a quick test (can be called from console)
+function quickTest() {
+    return testRollProbabilities(1000);
+}
+
+// Function to run a comprehensive test (can be called from console)
+function comprehensiveTest() {
+    return testRollProbabilities(50000);
+}
+
+// Add test button functionality (for development purposes)
+function addTestButton() {
+    if (document.getElementById('testButton')) return; // Don't add if already exists
+    
+    const testButton = document.createElement('button');
+    testButton.id = 'testButton';
+    testButton.innerHTML = 'Run Probability Test';
+    testButton.style.cssText = `
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        padding: 10px 15px;
+        background: #333;
+        color: white;
+        border: 1px solid #555;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 12px;
+        z-index: 9999;
+    `;
+    
+    testButton.addEventListener('click', () => {
+        testButton.textContent = 'Running test...';
+        testButton.disabled = true;
+        
+        setTimeout(() => {
+            quickTest();
+            testButton.textContent = 'Run Probability Test';
+            testButton.disabled = false;
+            alert('Test completed! Check the browser console for results.');
+        }, 100);
+    });
+    
+    document.body.appendChild(testButton);
+}
+
+// Uncomment the line below to add a test button to the page for easy testing
+//addTestButton();
