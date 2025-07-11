@@ -74,7 +74,22 @@
         <div class="release-info">
             <div class="release-date">
                 <span class="date-label">Release Date:</span>
-                <span class="date-value">July 16th, 2025 at 3:00 PM PDT</span>
+                <span class="date-value" id="releaseDate"></span>
+                <script>
+                    // Set the release date in UTC
+                    const releaseUTC = new Date(Date.UTC(2025, 6, 16, 22, 0, 0)); // July is month 6 (0-based), 22:00 UTC = 3:00 PM PDT
+                    // Format for user's local time
+                    const options = {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        timeZoneName: 'short'
+                    };
+                    document.getElementById('releaseDate').textContent =
+                        releaseUTC.toLocaleString(undefined, options);
+                </script>
             </div>
         </div>
 
