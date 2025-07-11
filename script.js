@@ -466,11 +466,13 @@ function updateLuckMeter() {
     }
     
     if (totalKitasanCount === 0 && totalPulls > 0) {
-        luckFill.style.width = '15%';
+        // Show minimal red bar for no success
+        luckFill.style.clipPath = 'inset(0 85% 0 0)';
         luckFill.style.background = '#ff4444';
         luckText.textContent = 'Keep trying!';
     } else if (totalPulls === 0) {
-        luckFill.style.width = '5%';
+        // Show minimal gray bar for no attempts
+        luckFill.style.clipPath = 'inset(0 95% 0 0)';
         luckFill.style.background = '#888';
         luckText.textContent = 'Try your luck!';
     } else if (totalPulls >= 50) {
@@ -483,50 +485,30 @@ function updateLuckMeter() {
             percentileValue = parseFloat(percentileMatch[1]);
         }
         
-        // Set width based on percentile with better scaling
-        let widthPercentage;
-        if (percentileValue >= 99.9) {
-            widthPercentage = 100;
-        } else if (percentileValue >= 99) {
-            widthPercentage = 95;
-        } else if (percentileValue >= 95) {
-            widthPercentage = 90;
-        } else if (percentileValue >= 80) {
-            widthPercentage = 80;
-        } else if (percentileValue >= 60) {
-            widthPercentage = Math.max(60, percentileValue);
-        } else if (percentileValue >= 20) {
-            widthPercentage = Math.max(30, percentileValue * 0.8);
-        } else {
-            widthPercentage = Math.max(15, percentileValue * 0.75);
-        }
+        // Use clip-path to show only the portion of the gradient up to the percentile
+        const clipPercentage = Math.max(percentileValue, 5); // Minimum 5% for visibility
+        const rightClip = 100 - clipPercentage;
+        luckFill.style.clipPath = `inset(0 ${rightClip}% 0 0)`;
         
-        luckFill.style.width = `${widthPercentage}%`;
+        // Always use the full gradient - clip-path will mask it appropriately
+        luckFill.style.background = 'linear-gradient(90deg, #ff6600, #ffaa00, #ffd700, #00ff88, #ff69b4)';
         
-        // Set color and text based on percentile thresholds with more granular feedback
+        // Set text based on percentile thresholds
         if (percentileValue >= 99.9) {
-            luckFill.style.background = 'linear-gradient(90deg, #ff00ff, #ffd700, #00ff88)';
             luckText.textContent = 'Legendary luck!';
         } else if (percentileValue >= 99) {
-            luckFill.style.background = 'linear-gradient(90deg, #ffd700, #00ff88, #00ffff)';
             luckText.textContent = 'Extremely lucky!';
         } else if (percentileValue >= 95) {
-            luckFill.style.background = 'linear-gradient(90deg, #ffd700, #00ff88)';
             luckText.textContent = 'Very lucky!';
         } else if (percentileValue >= 80) {
-            luckFill.style.background = 'linear-gradient(90deg, #ffaa00, #ffd700)';
             luckText.textContent = 'Incredible luck!';
         } else if (percentileValue >= 60) {
-            luckFill.style.background = 'linear-gradient(90deg, #ff8800, #ffaa00)';
-            luckText.textContent = 'Above average luck!';
+            luckText.textContent = 'Good luck!';
         } else if (percentileValue >= 40) {
-            luckFill.style.background = 'linear-gradient(90deg, #ff8800, #ffaa00)';
             luckText.textContent = 'Average luck';
         } else if (percentileValue >= 20) {
-            luckFill.style.background = 'linear-gradient(90deg, #ff6600, #ff8800)';
             luckText.textContent = 'Below average luck';
         } else {
-            luckFill.style.background = '#ff4444';
             luckText.textContent = 'Bad luck streak';
         }
     } else {
@@ -536,9 +518,10 @@ function updateLuckMeter() {
         const expectedRate = 0.75;
         const luckRatio = actualRate / expectedRate;
         
-        // Set width based on how many Kitasan Blacks obtained relative to total pulls
-        const widthPercentage = Math.min(Math.max((totalKitasanCount / (totalPulls / 50)) * 20 + 20, 15), 100);
-        luckFill.style.width = `${widthPercentage}%`;
+        // Set clip-path based on how many Kitasan Blacks obtained relative to total pulls
+        const clipPercentage = Math.min(Math.max((totalKitasanCount / (totalPulls / 50)) * 20 + 20, 15), 100);
+        const rightClip = 100 - clipPercentage;
+        luckFill.style.clipPath = `inset(0 ${rightClip}% 0 0)`;
         
         if (luckRatio >= 2.0) {
             luckFill.style.background = 'linear-gradient(90deg, #ffd700, #00ff88)';
