@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitasan Black - Card Release Countdown</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="background-animation">
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+            <div class="star"></div>
+        </div>
+        
+        <header>
+            <h1 class="title">KITASAN BLACK</h1>
+        </header>
+
+        <div class="footer">
+            <p class="ready-message" id="readyMessage" style="display: none;">
+                🎉 The card is now available! 🎉
+            </p>
+        </div>
+
+        <div class="countdown-container">
+            <div class="countdown" id="countdown">
+                <div class="time-unit">
+                    <span class="number" id="days">00</span>
+                    <span class="label">DAYS</span>
+                </div>
+                <div class="time-unit">
+                    <span class="number" id="hours">00</span>
+                    <span class="label">HOURS</span>
+                </div>
+                <div class="time-unit">
+                    <span class="number" id="minutes">00</span>
+                    <span class="label">MINUTES</span>
+                </div>
+                <div class="time-unit">
+                    <span class="number" id="seconds">00</span>
+                    <span class="label">SECONDS</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-preview">
+            <div class="card-showcase">
+                <div class="card-container">
+                    <div class="card-glow"></div>
+                    <img src="images/tex_support_card_30028.png" alt="Kitasan Black Support Card" class="card-image">
+                    <div class="card-overlay">
+                        <div class="card-info">
+                            <h3>Kitasan Black</h3>
+                            <div class="card-details">
+                                <div class="obtain-type">
+                                    <img src="images/utx_ico_obtain_00.png" alt="Obtain Type" class="obtain-icon">
+                                    <span>Support Card</span>
+                                </div>
+                                <div class="rarity-indicator">
+                                    <img src="images/utx_txt_rarity_03.png" alt="Rarity" class="rarity-image">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="release-info">
+            <div class="release-date">
+                <span class="date-label">Release Date:</span>
+                <span class="date-value">July 16th, 2025 at 3:00 PM PDT</span>
+            </div>
+        </div>
+
+        <div class="coming-soon-banner">
+            <span>PRAY FOR 0.75%</span>
+        </div>
+        <div class="reroll-simulator">
+        <h2 class="simulator-title">REROLL SIMULATOR</h2>
+        <p class="simulator-subtitle">Practice your luck for the real release!</p>
+        
+        <div class="stats-container">
+            <div class="stat-item">
+                <span class="stat-number" id="rerollCount">0</span>
+                <span class="stat-label">Rerolls</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="kitasanCount">0</span>
+                <span class="stat-label">Kitasan Blacks</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="totalPulls">0</span>
+                <span class="stat-label">Total Pulls</span>
+            </div>
+        </div>
+
+        <div class="reroll-results" id="rerollResults" style="display: none;">
+            <div class="result-text" id="resultText"></div>
+            <div class="percentile-text" id="percentileText"></div>
+        </div>
+
+        <button class="reroll-button" id="rerollButton">
+            <span class="button-text">REROLL (50 PULLS)</span>
+            <span class="button-glow"></span>
+        </button>
+
+        <div class="luck-meter">
+            <div class="luck-bar">
+                <div class="luck-fill" id="luckFill"></div>
+            </div>
+            <span class="luck-text" id="luckText">Try your luck!</span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
