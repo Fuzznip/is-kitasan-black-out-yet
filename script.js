@@ -338,6 +338,11 @@ function showRollResult(kitasanPulled, pullCount = 50) {
     // Generate message based on luck level
     if (kitasanPulled === 0) {
         message = '💔 No Kitasan Black this time...';
+        
+        // Show nokitasan.gif for especially painful rolls (100+ pulls with 0 results)
+        if (pullCount >= 100) {
+            showNoKitasanGif();
+        }
     } else if (percentileValue <= 25) {
         // Bad luck (bottom 25%)
         if (kitasanPulled === 1) {
@@ -540,6 +545,59 @@ function updateLuckMeter() {
             luckText.textContent = 'Bad luck streak';
         }
     }
+}
+
+function showNoKitasanGif() {
+    // Find the roll simulator container
+    const rollSimulator = document.querySelector('.roll-simulator');
+    if (!rollSimulator) return;
+    
+    // Create the scrolling GIF element
+    const gif = document.createElement('img');
+    gif.src = 'images/nokitasan.gif';
+    gif.alt = 'No Kitasan';
+    gif.style.cssText = `
+        position: absolute;
+        width: 120px;
+        height: auto;
+        right: -150px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        opacity: 1;
+        pointer-events: none;
+        border-radius: 8px;
+        filter: drop-shadow(0 0 10px rgba(255, 68, 68, 0.6));
+        transition: right 0.5s ease-out;
+    `;
+    
+    // Make sure roll simulator has relative positioning
+    const originalPosition = rollSimulator.style.position;
+    rollSimulator.style.position = 'relative';
+    rollSimulator.appendChild(gif);
+    
+    // Phase 1: Slide onto screen
+    requestAnimationFrame(() => {
+        gif.style.right = '20px'; // Slide to visible position
+    });
+    
+    // Phase 2: Wait a moment, then slide off
+    setTimeout(() => {
+        gif.style.transition = 'right 0.8s ease-in, opacity 0.3s ease';
+        gif.style.right = 'calc(100% + 30px)'; // Slide off left side
+        gif.style.opacity = '0';
+    }, 1500); // Wait 1.5 seconds before sliding off
+    
+    // Phase 3: Remove the element after animation completes
+    setTimeout(() => {
+        if (rollSimulator.contains(gif)) {
+            rollSimulator.removeChild(gif);
+            // Restore original position if it was empty
+            if (!originalPosition) {
+                rollSimulator.style.position = '';
+            }
+        }
+    }, 2500); // Total duration: 1.5s pause + 0.8s slide off + 0.2s buffer
 }
 
 function createCelebrationEffect(kitasanCount = 1) {
