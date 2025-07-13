@@ -1672,7 +1672,7 @@ function initInventoryModal() {
     const inventoryButton = document.getElementById('inventoryButton');
     const inventoryModal = document.getElementById('inventoryModal');
     const closeInventory = document.getElementById('closeInventory');
-    const clearInventoryBtn = document.getElementById('clearInventoryBtn');
+    const clearInventoryBtn = document.getElementById('closeInventoryBtn');
     
     // Open inventory modal
     if (inventoryButton) {
@@ -1688,10 +1688,10 @@ function initInventoryModal() {
         });
     }
     
-    // Clear inventory button
+    // Close inventory button (alternative close method for mobile)
     if (clearInventoryBtn) {
         clearInventoryBtn.addEventListener('click', () => {
-            clearInventory();
+            inventoryModal.style.display = 'none';
         });
     }
     

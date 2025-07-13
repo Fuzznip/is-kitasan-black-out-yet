@@ -1128,8 +1128,8 @@ header {
     margin-top: 20px;
 }
 
-.clear-inventory-btn {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+.close-inventory-btn {
+    background: linear-gradient(135deg, #4a90e2, #357abd);
     border: none;
     border-radius: 12px;
     padding: 12px 24px;
@@ -1145,24 +1145,24 @@ header {
     align-items: center;
     gap: 8px;
     text-transform: uppercase;
-    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
 }
 
-.clear-inventory-btn:hover {
-    background: linear-gradient(135deg, #f56565, #e53e3e);
+.close-inventory-btn:hover {
+    background: linear-gradient(135deg, #5ba0f2, #4080cd);
     transform: scale(1.05);
-    box-shadow: 0 8px 25px rgba(231, 76, 60, 0.5);
+    box-shadow: 0 8px 25px rgba(74, 144, 226, 0.5);
 }
 
-.clear-inventory-btn:active {
+.close-inventory-btn:active {
     transform: scale(0.95);
 }
 
-.clear-inventory-btn .button-icon {
+.close-inventory-btn .button-icon {
     font-size: 1.1rem;
 }
 
-.clear-inventory-btn .button-glow {
+.close-inventory-btn .button-glow {
     position: absolute;
     top: 0;
     left: -100%;
@@ -1173,7 +1173,7 @@ header {
     pointer-events: none;
 }
 
-.clear-inventory-btn:hover .button-glow {
+.close-inventory-btn:hover .button-glow {
     left: 100%;
 }
 
