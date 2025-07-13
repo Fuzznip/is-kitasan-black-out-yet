@@ -578,9 +578,9 @@ header {
 
 .pull-count-number:focus {
     border-color: #ffd700;
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
 }
 
+/* Hide number input spinners since it's readonly */
 .pull-count-number::-webkit-outer-spin-button,
 .pull-count-number::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -592,6 +592,66 @@ header {
     appearance: textfield;
 }
 
+/* Settings Control */
+.settings-control {
+    margin: 15px 0;
+    text-align: center;
+}
+
+.settings-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #ffffff;
+    font-weight: 600;
+    user-select: none;
+}
+
+.celebration-toggle {
+    display: none;
+}
+
+.checkbox-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 215, 0, 0.5);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.celebration-toggle:checked + .checkbox-custom {
+    background: linear-gradient(45deg, #ffd700, #ffed4e);
+    border-color: #ffd700;
+}
+
+.celebration-toggle:checked + .checkbox-custom::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #000;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.checkbox-custom:hover {
+    border-color: #ffd700;
+    background: rgba(255, 215, 0, 0.1);
+}
+
+.settings-description {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 5px;
+    font-style: italic;
+}
+
+/* Button Container and Buttons */
 .button-container {
     display: flex;
     gap: 15px;
@@ -1328,6 +1388,19 @@ header {
     .stat-label {
         font-size: 0.9rem;
     }
+    
+    /* Settings control for tablets and mobile */
+    .settings-control {
+        margin: 12px 0;
+    }
+    
+    .settings-label {
+        font-size: 0.95rem;
+    }
+    
+    .settings-description {
+        font-size: 0.8rem;
+    }
 }
 
 /* Extra small mobile devices */
@@ -1390,6 +1463,26 @@ header {
         margin: 2% auto;
         width: 98%;
         max-width: 98%;
+    }
+    
+    /* Settings control for extra small mobile */
+    .settings-control {
+        margin: 10px 0;
+    }
+    
+    .settings-label {
+        font-size: 0.9rem;
+        gap: 8px;
+    }
+    
+    .checkbox-custom {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .settings-description {
+        font-size: 0.75rem;
+        margin-top: 3px;
     }
 }
 

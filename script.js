@@ -232,6 +232,12 @@ function loadSavedData() {
             totalCaratsSpent = 0;
         }
         
+        // Load celebration effects setting
+        const savedCelebrationSetting = localStorage.getItem('celebrationEffectsEnabled');
+        if (savedCelebrationSetting !== null) {
+            celebrationEffectsEnabled = savedCelebrationSetting === 'true';
+        }
+        
         console.log('Saved data loaded and validated successfully');
     } catch (error) {
         console.error('Error loading saved data:', error);
@@ -375,8 +381,8 @@ function addCardToInventory(card, showAnimation = true, pullCount = 50, ssrCards
     saveData();
     updateInventoryCount();
     
-    // Trigger animation if qualifying card
-    if (shouldAnimate) {
+    // Trigger animation if qualifying card and effects are enabled
+    if (shouldAnimate && celebrationEffectsEnabled) {
         // Use the current roll animation counter for positioning
         const cardIndex = currentRollAnimationIndex;
         currentRollAnimationIndex++; // Increment for next card in this roll
@@ -573,6 +579,9 @@ let totalGoodCards = 0;
 let totalCaratsSpent = 0;
 let rollHistory = [];
 
+// Settings variables
+let celebrationEffectsEnabled = true;
+
 // Roll simulator functionality
 function initRollSimulator() {
     const rollButton = document.getElementById('rollButton');
@@ -605,6 +614,23 @@ function initRollSimulator() {
         
         // Initialize button text
         updateButtonText();
+    }
+    
+    // Initialize celebration toggle
+    const celebrationToggle = document.getElementById('celebrationToggle');
+    if (celebrationToggle) {
+        // Load saved setting
+        const savedSetting = localStorage.getItem('celebrationEffectsEnabled');
+        if (savedSetting !== null) {
+            celebrationEffectsEnabled = savedSetting === 'true';
+            celebrationToggle.checked = celebrationEffectsEnabled;
+        }
+        
+        // Add event listener
+        celebrationToggle.addEventListener('change', function() {
+            celebrationEffectsEnabled = this.checked;
+            localStorage.setItem('celebrationEffectsEnabled', celebrationEffectsEnabled.toString());
+        });
     }
 }
 
@@ -897,7 +923,7 @@ function showRollResult(kitasanPulled, rCards, srCards, ssrCards, pullCount = 50
     
     // Add special effects based on luck level
     const shouldCelebrate = percentileValue >= 90 || kitasanPulled >= 3;
-    if (shouldCelebrate) {
+    if (shouldCelebrate && celebrationEffectsEnabled) {
         createCelebrationEffect(kitasanPulled);
     }
 }
@@ -2091,8 +2117,10 @@ async function initializeApp() {
     const cardContainer = document.querySelector('.card-container');
     if (cardContainer) {
         cardContainer.addEventListener('mouseenter', function() {
-            createParticles(this);
-            createGoldenSparkles(this);
+            if (celebrationEffectsEnabled) {
+                createParticles(this);
+                createGoldenSparkles(this);
+            }
         });
     }
     
