@@ -2,6 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <header>
+        <button class="inventory-button" id="inventoryButton" title="View Inventory">
+            <img src="images/karat.png" alt="Carats" class="inventory-icon">
+            <span class="inventory-count" id="inventoryCount">0</span>
+        </button>
+    </header>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kitasan Black - Card Release Countdown</title>
     <meta name="description" content="Roll simulator and countdown for Kitasan Black support card from Umamusume: Pretty Derby. Cope for your 0.75% before the official release!">
@@ -44,6 +50,10 @@
         
         <header>
             <h1 class="title">KITASAN BLACK</h1>
+            <button class="inventory-button" id="inventoryButton" title="View Inventory">
+                <span class="inventory-icon">�</span>
+                <span class="inventory-count" id="inventoryCount">0</span>
+            </button>
         </header>
 
         <div class="footer">
@@ -83,11 +93,11 @@
                             <h3>Kitasan Black</h3>
                             <div class="card-details">
                                 <div class="obtain-type">
-                                    <img src="images/utx_ico_obtain_00.png" alt="Obtain Type" class="obtain-icon">
+                                    <img src="images/speed.png" alt="Obtain Type" class="obtain-icon">
                                     <span>Support Card</span>
                                 </div>
                                 <div class="rarity-indicator">
-                                    <img src="images/utx_txt_rarity_03.png" alt="Rarity" class="rarity-image">
+                                    <img src="images/SSR.png" alt="Rarity" class="rarity-image">
                                 </div>
                             </div>
                         </div>
@@ -166,6 +176,80 @@
                 <div class="luck-fill" id="luckFill"></div>
             </div>
             <span class="luck-text" id="luckText">Try your luck!</span>
+        </div>
+    </div>
+
+    <!-- Inventory Modal -->
+    <div class="modal" id="inventoryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Card Inventory</h2>
+                <span class="close" id="closeInventory">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="inventory-tabs">
+                    <button class="tab-button active" data-tab="collection">Collection</button>
+                    <button class="tab-button" data-tab="cardpool">Card Pool</button>
+                </div>
+                
+                <div class="tab-content active" id="collection-tab">
+                    <div class="collection-summary">
+                        <div class="summary-stat">
+                            <span class="summary-number" id="ssrCollectionCount">0</span>
+                            <span class="summary-label">SSR Cards</span>
+                        </div>
+                        <div class="summary-stat">
+                            <span class="summary-number" id="srCollectionCount">0</span>
+                            <span class="summary-label">SR Cards</span>
+                        </div>
+                        <div class="summary-stat">
+                            <span class="summary-number" id="totalCollectionCount">0</span>
+                            <span class="summary-label">Total Unique</span>
+                        </div>
+                        <div class="summary-stat">
+                            <span class="summary-number" id="totalCaratsSpent">0</span>
+                            <span class="summary-label">💎 Carats Spent</span>
+                        </div>
+                        <div class="summary-stat">
+                            <span class="summary-number" id="totalUSDValue">$0.00</span>
+                            <span class="summary-label">💵 USD Value</span>
+                        </div>
+                    </div>
+                    <div class="card-grid" id="cardCollection">
+                        <div class="empty-collection">
+                            <p>No cards collected yet!</p>
+                            <p>Start rolling to build your collection.</p>
+                        </div>
+                    </div>
+                    <div class="collection-actions">
+                        <button class="clear-inventory-btn" id="clearInventoryBtn">
+                            <span class="button-icon">🗑️</span>
+                            <span class="button-text">Clear Inventory</span>
+                            <span class="button-glow"></span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="cardpool-tab">
+                    <div class="cardpool-header">
+                        <h3>Card Pool Information</h3>
+                    </div>
+                    <div class="pool-info-text">
+                        <p><strong>Rate-up System:</strong> When you pull an SSR, there's a 50% chance it will be one of the rate-up cards (Kitasan Black or Satono Diamond), and 50% chance for any other SSR card.</p>
+                    </div>
+                    <div class="rarity-sections">
+                        <div class="rarity-section">
+                            <div class="card-pool-grid" id="ssrCardPool"></div>
+                        </div>
+                        <div class="rarity-section">
+                            <div class="card-pool-grid" id="srCardPool"></div>
+                        </div>
+                        <div class="rarity-section">
+                            <div class="card-pool-grid" id="rCardPool"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
