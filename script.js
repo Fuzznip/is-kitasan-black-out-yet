@@ -1909,6 +1909,7 @@ function initCardPoolManagement() {
 
 function clearInventory() {
     inventory = {};
+    totalCaratsSpent = 0; // Reset Carats spent counter
     saveData();
     updateInventoryCount();
     renderCollection();
