@@ -858,6 +858,7 @@ header {
     font-size: 0.9rem;
     color: #a0a0a0;
     margin-top: 5px;
+    font-weight: 600;
 }
 
 .card-grid {
@@ -1199,11 +1200,134 @@ header {
     }
     
     .collection-summary {
-        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-        gap: 10px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: auto auto;
+        gap: 8px;
+    }
+    
+    /* First row: SSR, SR, Total Unique */
+    .summary-stat:nth-child(1),
+    .summary-stat:nth-child(2),
+    .summary-stat:nth-child(3) {
+        grid-row: 1;
+    }
+    
+    /* Second row: Carats and USD (centered) */
+    .summary-stat:nth-child(4) {
+        grid-row: 2;
+        grid-column: 1 / 2;
+    }
+    
+    .summary-stat:nth-child(5) {
+        grid-row: 2;
+        grid-column: 2 / 3;
     }
     
     .summary-stat {
-        padding: 10px;
+        padding: 8px 6px;
+        min-width: 0;
+    }
+    
+    .summary-number {
+        font-size: 1.1rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: block;
+        width: 100%;
+    }
+    
+    .summary-label {
+        font-size: 0.75rem;
+        line-height: 1.2;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        text-align: center;
+    }
+    
+    /* Fix roll simulator stats container on mobile */
+    .stats-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-bottom: 25px;
+    }
+    
+    .stat-item {
+        min-width: auto;
+        padding: 15px 20px;
+    }
+    
+    .stat-number {
+        font-size: 1.8rem;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+    }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 480px) {
+    .collection-summary {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: auto auto;
+        gap: 6px;
+    }
+    
+    /* Keep the same row layout as regular mobile */
+    .summary-stat:nth-child(1),
+    .summary-stat:nth-child(2),
+    .summary-stat:nth-child(3) {
+        grid-row: 1;
+    }
+    
+    .summary-stat:nth-child(4) {
+        grid-row: 2;
+        grid-column: 1 / 2;
+    }
+    
+    .summary-stat:nth-child(5) {
+        grid-row: 2;
+        grid-column: 2 / 3;
+    }
+    
+    .summary-stat {
+        padding: 6px 4px;
+    }
+    
+    .summary-number {
+        font-size: 1rem;
+    }
+    
+    .summary-label {
+        font-size: 0.65rem;
+    }
+    
+    /* Roll simulator stats for extra small mobile */
+    .stats-container {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .stat-item {
+        padding: 12px 16px;
+    }
+    
+    .stat-number {
+        font-size: 1.6rem;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+    }
+    
+    .modal-content {
+        margin: 2% auto;
+        width: 98%;
+        max-width: 98%;
     }
 }
