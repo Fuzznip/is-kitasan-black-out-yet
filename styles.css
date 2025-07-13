@@ -1154,6 +1154,67 @@ header {
     transition: all 0.3s ease;
 }
 
+/* Image Loading Styles */
+.image-loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.image-loading::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.image-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 24px;
+    height: 24px;
+    margin: -12px 0 0 -12px;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    border-top: 2px solid #ffd700;
+    border-radius: 50%;
+    z-index: 2;
+    animation: imageSpinner 1s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes imageSpinner {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.image-loading img {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.image-loaded::before,
+.image-loaded::after {
+    display: none;
+}
+
+.image-loaded img {
+    opacity: 1;
+}
+
+/* Small loading spinner for smaller images */
+.image-loading.small::after {
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border-width: 1.5px;
+}
+
 /* Mobile responsive styles */
 @media (max-width: 768px) {
     .button-container {
@@ -1330,4 +1391,18 @@ header {
         width: 98%;
         max-width: 98%;
     }
+}
+
+/* Inventory button specific loading adjustments */
+.inventory-button .image-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.inventory-button .image-loading::after {
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
+    border-width: 1px;
 }

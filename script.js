@@ -1,3 +1,53 @@
+// Image loading utilities
+function addImageLoadingState(imgElement, container = null) {
+    const parent = container || imgElement.parentElement;
+    if (parent) {
+        parent.classList.add('image-loading');
+        
+        // Add small class for smaller images
+        if (imgElement.width < 100 || imgElement.height < 100) {
+            parent.classList.add('small');
+        }
+    }
+    
+    imgElement.addEventListener('load', function() {
+        if (parent) {
+            parent.classList.remove('image-loading');
+            parent.classList.add('image-loaded');
+        }
+    });
+    
+    imgElement.addEventListener('error', function() {
+        if (parent) {
+            parent.classList.remove('image-loading');
+            parent.classList.add('image-loaded');
+        }
+    });
+    
+    // If image is already loaded (cached)
+    if (imgElement.complete && imgElement.naturalHeight !== 0) {
+        if (parent) {
+            parent.classList.remove('image-loading');
+            parent.classList.add('image-loaded');
+        }
+    }
+}
+
+function createImageWithLoading(src, alt = '', className = '') {
+    const container = document.createElement('div');
+    container.className = 'image-loading';
+    
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = alt;
+    if (className) img.className = className;
+    
+    container.appendChild(img);
+    addImageLoadingState(img, container);
+    
+    return container;
+}
+
 // Card Pool Configuration - loaded from cards folder
 let cardPool = {
     R: [],
@@ -1733,16 +1783,16 @@ function renderCollection() {
     
     cardCollection.innerHTML = inventoryCards.map(card => {
         const rarityClass = (card.rarity || 'R').toLowerCase();
-        const isRateUp = card.isRateUp ? ' 🔥' : '';
+        const isRateUp = card.isRateUp ? '' : ''; // Remove fire emoji
         const cardName = card.name || card.id || 'Unknown Card';
         const typeIcon = getTypeIcon(card.type);
         
         return `
             <div class="collection-card ${rarityClass}">
-                <div class="collection-card-image" style="position: relative;">
-                    ${card.image ? `<img src="${card.image}" alt="${cardName}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="collection-card-image image-loading" style="position: relative;">
+                    ${card.image ? `<img src="${card.image}" alt="${cardName}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;" onload="this.parentElement.classList.remove('image-loading'); this.parentElement.classList.add('image-loaded');" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'; this.parentElement.classList.remove('image-loading'); this.parentElement.classList.add('image-loaded');">
                     <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 24px;">🎴</div>` : '<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 24px;">🎴</div>'}
-                    ${typeIcon ? `<div class="type-icon-overlay" style="position: absolute; top: 0; right: 0; z-index: 10;"><img src="${typeIcon}" alt="${card.type}" class="type-icon-img" style="width: 20px; height: 20px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));"></div>` : ''}
+                    ${typeIcon ? `<div class="type-icon-overlay image-loading small" style="position: absolute; top: 0; right: 0; z-index: 10;"><img src="${typeIcon}" alt="${card.type}" class="type-icon-img" style="width: 20px; height: 20px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));" onload="this.parentElement.classList.remove('image-loading'); this.parentElement.classList.add('image-loaded');"></div>` : ''}
                 </div>
                 <div class="collection-card-name" title="${cardName}">${cardName}${isRateUp}</div>
                 <div class="collection-card-count">×${card.count || 1}</div>
@@ -1820,12 +1870,12 @@ function createCardDisplay(card) {
     const isRateUp = card.isRateUp ? ' rate-up' : '';
     
     return `
-
         <div class="pool-card${isRateUp}">
-            <div class="card-image-container${isRateUp}">
+            <div class="card-image-container${isRateUp} image-loading">
                 <img src="${card.image}" alt="${card.name}" 
-                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1zbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzMyIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSIzMCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+🎴</3RleHQ+PC9zdmc+'">
-                ${typeIcon ? `<div class="type-icon-overlay"><img src="${typeIcon}" alt="${card.type}" class="type-icon-img"></div>` : ''}
+                     onload="this.parentElement.classList.remove('image-loading'); this.parentElement.classList.add('image-loaded');"
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1zbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzMyIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSIzMCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+🎴</3RleHQ+PC9zdmc+'; this.parentElement.classList.remove('image-loading'); this.parentElement.classList.add('image-loaded');">
+                ${typeIcon ? `<div class="type-icon-overlay image-loading small"><img src="${typeIcon}" alt="${card.type}" class="type-icon-img" onload="this.parentElement.classList.remove('image-loading'); this.parentElement.classList.add('image-loaded');"></div>` : ''}
             </div>
             <div class="card-name">${card.name}</div>
         </div>
@@ -1904,10 +1954,11 @@ function createFlyingCardAnimation(card, cardIndex = 0) {
     
     // Add card content
     flyingCard.innerHTML = `
-        <div style="width: 90%; height: 70%; border-radius: 6px; overflow: hidden; margin-bottom: 8px;">
+        <div style="width: 90%; height: 70%; border-radius: 6px; overflow: hidden; margin-bottom: 8px;" class="image-loading">
             <img src="${card.image}" alt="${card.name}" 
                  style="width: 100%; height: 100%; object-fit: cover;"
-                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1zbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzMyIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSIzMCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+🎴</3RleHQ+PC9zdmc+'">
+                 onload="this.parentElement.classList.remove('image-loading'); this.parentElement.classList.add('image-loaded');"
+                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1zbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzMyIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSIzMCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+🎴</3RleHQ+PC9zdmc+'; this.parentElement.classList.remove('image-loading'); this.parentElement.classList.add('image-loaded');">
         </div>
         <div style="font-size: 10px; font-weight: bold; color: white; text-align: center; padding: 0 4px;">
             ${card.name}
@@ -2053,8 +2104,24 @@ async function initializeApp() {
     console.log('Umamusume Roll Simulator initialized with dynamic card pool!');
 }
 
-// Replace the old initialization
-document.addEventListener('DOMContentLoaded', initializeApp);
+// Initialize loading states for existing images on page load
+function initializeImageLoading() {
+    const images = document.querySelectorAll('img');
+    images.forEach(img => {
+        const parent = img.parentElement;
+        if (parent && !parent.classList.contains('image-loading') && !parent.classList.contains('image-loaded')) {
+            addImageLoadingState(img);
+        }
+    });
+}
+
+// Call initialization when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    initializeImageLoading();
+    // Start the app initialization
+    initializeApp();
+});
+
 
 // Test function for flying card animation (for development purposes)
 function testFlyingCardAnimation() {
