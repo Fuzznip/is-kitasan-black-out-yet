@@ -951,8 +951,11 @@ function calculatePercentile(kitasanCount, pullCount = 50) {
     
     // Calculate probability of getting exactly this many or fewer
     let cumulativeProbability = 0;
-    for (let i = 0; i <= kitasanCount; i++) {
-        cumulativeProbability += binomialProbability(pullCount, i, p);
+    if (kitasanCount !== 0)
+    {
+        for (let i = 0; i <= Math.max(kitasanCount - 1, 0); i++) {
+            cumulativeProbability += binomialProbability(pullCount, i, p);
+        }
     }
     
     // Convert to percentile (0-100)
@@ -988,7 +991,7 @@ function calculatePercentile(kitasanCount, pullCount = 50) {
         formattedPercentile = `${rounded.toFixed(2)}${getOrdinalSuffix(Math.floor(rounded))} percentile`;
     } else {
         const rounded = Math.round(percentile * 1000) / 1000;
-        formattedPercentile = `${rounded.toFixed(3)}${getOrdinalSuffix(Math.floor(rounded))} percentile`;
+        formattedPercentile = `${rounded}${getOrdinalSuffix(Math.floor(rounded))} percentile`;
     }
     
     return formattedPercentile;
