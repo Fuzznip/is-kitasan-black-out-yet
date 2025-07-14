@@ -152,9 +152,9 @@ async function getCardFolders() {
         '20012-agnes-tachyon', '20013-eishin-flash', '20014-narita-taishin', '20015-marvelous-sunday',
         '20016-matikanefukitaru', '20017-meisho-doto', '20018-mejiro-dober', '20019-nice-nature',
         '20020-king-halo', '20021-aoi-kiryuin', '20023-sweep-tosho', '20024-daitaku-helios',
-        '30001-special-week', '30002-silence-suzuka', '30005-vodka', '30006-grass-wonder',
+        '30001-special-week', '30002-silence-suzuka', '30003-tokai-teio', '30005-vodka', '30006-grass-wonder',
         '30007-el-condor-pasa', '30008-seiun-sky', '30009-tamamo-cross', '30010-fine-motion',
-        '30011-ines-fujin', '30012-winning-ticket', '30014-gold-city', '30015-sakura-bakushin-o',
+        '30011-ines-fujin', '30012-winning-ticket', '30013-air-shakur', '30014-gold-city', '30015-sakura-bakushin-o',
         '30016-super-creek', '30017-smart-falcon', '30018-nishino-flower', 
         '30020-biko-pegasus', '30021-tazuna-hayakawa', '30024-oguri-cap',
         '30026-twin-turbo', '30027-mejiro-palmer', '30028-kitasan-black', '30029-satono-diamond'
