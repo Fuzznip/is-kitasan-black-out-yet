@@ -403,105 +403,6 @@ function updateInventoryCount() {
     }
 }
 
-// Target release date: July 16th, 2025 at 3:00 PM PDT (Pacific Daylight Time)
-// Convert PDT to UTC: 3:00 PM PDT = 10:00 PM UTC (PDT is UTC-7)
-const targetDate = new Date('2025-07-16T22:00:00.000Z'); // UTC time
-
-function updateCountdown() {
-    const now = new Date();
-    const timeDifference = targetDate.getTime() - now.getTime();
-
-    // Check if the target date has passed
-    if (timeDifference <= 0) {
-        document.getElementById('countdown').style.display = 'none';
-        document.getElementById('readyMessage').style.display = 'block';
-        
-        // Update the title to show it's available
-        document.querySelector('.subtitle').textContent = 'Card Now Available!';
-        return;
-    }
-
-    // Calculate time units
-    const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
-
-    // Update the display with leading zeros
-    document.getElementById('days').textContent = days.toString().padStart(2, '0');
-    document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
-    document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
-    document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
-
-    // Add special effects when countdown is low
-    if (days === 0 && hours === 0 && minutes < 10) {
-        document.querySelector('.countdown-container').classList.add('urgent');
-        addUrgentStyles();
-    }
-}
-
-function addUrgentStyles() {
-    const style = document.createElement('style');
-    style.textContent = `
-        .countdown-container.urgent .time-unit {
-            animation: urgentPulse 1s infinite;
-            border-color: #ff4444;
-        }
-        
-        .countdown-container.urgent .number {
-            color: #ff4444;
-            text-shadow: 0 0 20px rgba(255, 68, 68, 0.8);
-        }
-        
-        @keyframes urgentPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-    `;
-    
-    if (!document.querySelector('style[data-urgent]')) {
-        style.setAttribute('data-urgent', 'true');
-        document.head.appendChild(style);
-    }
-}
-
-// Add floating animation to time units
-function addFloatingAnimation() {
-    const timeUnits = document.querySelectorAll('.time-unit');
-    timeUnits.forEach((unit, index) => {
-        unit.style.animationDelay = `${index * 0.2}s`;
-        unit.classList.add('floating');
-    });
-
-    const style = document.createElement('style');
-    style.textContent = `
-        .time-unit.floating {
-            animation: float 6s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-    `;
-    document.head.appendChild(style);
-}
-
-// Initialize countdown
-function init() {
-    updateCountdown();
-    addFloatingAnimation();
-    
-    // Update every second
-    setInterval(updateCountdown, 1000);
-    
-    // Display current time for reference
-    console.log('Current time (UTC):', new Date().toISOString());
-    console.log('Current time (Local):', new Date().toLocaleString());
-    console.log('Target time (UTC):', targetDate.toISOString());
-    console.log('Target time (Local):', targetDate.toLocaleString());
-}
-
 // Enhanced initialization
 function createParticles(element) {
     for (let i = 0; i < 5; i++) {
@@ -2101,8 +2002,7 @@ async function initializeApp() {
     // Load saved data after cards are loaded
     loadSavedData();
     
-    // Initialize existing systems
-    init(); // Original countdown initialization
+    // Initialize roll simulator
     initRollSimulator();
     
     // Add click effects to time units
