@@ -29,7 +29,8 @@ class CountdownTimer {
         this.targetDate = new Date(Date.UTC(2025, 6, 16, 22, 0, 0));
 
         // Set target date as 5 seconds from now for testing
-        // this.targetDate = new Date(Date.now() + 5000);
+        //this.targetDate = new Date(Date.now() + 5000);
+        //this.targetDate = new Date(Date.now() - 5000);
         // Set target date as 10 minutes and 5 seconds from now
         // this.targetDate = new Date(Date.now() + 600000 + 5000); // 10 minutes and 5 seconds
         // Set target date as 5 minutes 5 seconds from now
