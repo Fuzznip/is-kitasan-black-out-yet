@@ -308,8 +308,8 @@ function selectRandomCard(rarity) {
     
     // Special handling for SSR rate-up
     if (rarity === 'SSR') {
-        // 50% chance for rate-up cards, 50% chance for other SSRs
-        const useRateUp = Math.random() < 0.5;
+        // 1/3 chance for rate-up cards, 2/3 chance for other SSRs
+        const useRateUp = Math.random() < (1/3);
         
         if (useRateUp) {
             // Pick from rate-up cards only
@@ -727,7 +727,7 @@ function showRollResult(kitasanPulled, rCards, srCards, ssrCards, pullCount = 50
     let message = '';
     let percentile = '';
     
-    // Calculate percentile based on Kitasan Black pulls (SSR rate * 25% chance)
+    // Calculate percentile based on Kitasan Black pulls (SSR rate * ~16.67% chance)
     percentile = calculatePercentile(kitasanPulled, pullCount);
     
     // Extract the percentile rank for determining message tone
@@ -847,8 +847,8 @@ function calculatePercentile(kitasanCount, pullCount = 50) {
         return binomialCoeff(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
     }
     
-    // Effective Kitasan Black rate: 3% SSR * 25% Kitasan = 0.75%
-    const p = 0.0075; // 0.75% chance per pull
+    // Effective Kitasan Black rate: 3% SSR * 16.67% Kitasan = 0.5%
+    const p = 0.005; // 0.5% chance per pull
     
     // Calculate probability of getting exactly this many or fewer
     let cumulativeProbability = 0;
@@ -962,7 +962,7 @@ function calculateMultiFactorPercentiles(kitasanCount, ssrCount, goodCount, pull
     }
     
     // Probability rates
-    const kitasanRate = 0.0075; // 0.75% (3% SSR * 25% Kitasan)
+    const kitasanRate = 0.005; // 0.5% (3% SSR * 16.67% Kitasan)
     const ssrRate = 0.03; // 3% SSR rate
     const goodCardRate = 0.0954; // 7.8% good card rate (adjusted based on percentile distribution analysis)
     
@@ -1046,7 +1046,7 @@ function updateLuckMeter() {
         // Fallback for insufficient data (less than 50 pulls)
         // Use simple ratio-based calculation
         const actualRate = (totalKitasanCount / totalPulls) * 100;
-        const expectedRate = 0.75;
+        const expectedRate = 0.5;
         const luckRatio = actualRate / expectedRate;
         
         // Set clip-path based on how many Kitasan Blacks obtained relative to total pulls
@@ -1415,11 +1415,11 @@ function testRollProbabilities(numTests = 10000) {
     for (let test = 0; test < numTests; test++) {
         let kitasanInThisRoll = 0;
         
-        // Simulate 50 pulls with 0.75% chance each (same as the actual roll function)
+        // Simulate 50 pulls with 0.5% chance each (same as the actual roll function)
         for (let i = 0; i < 50; i++) {
             totalPullsInTest++;
             const random = Math.random();
-            if (random < 0.0075) { // 0.75% chance
+            if (random < 0.005) { // 0.5% chance
                 kitasanInThisRoll++;
                 totalKitasanPulled++;
             }
@@ -1436,7 +1436,7 @@ function testRollProbabilities(numTests = 10000) {
         actualPercentages[i] = (results[i] / numTests) * 100;
     }
     
-    // Expected percentages (binomial distribution: n=50, p=0.0075)
+    // Expected percentages (binomial distribution: n=50, p=0.005)
     const expectedPercentages = {
         0: 69.26,
         1: 26.11,
@@ -1448,7 +1448,7 @@ function testRollProbabilities(numTests = 10000) {
     
     // Calculate overall pull rate
     const actualPullRate = (totalKitasanPulled / totalPullsInTest) * 100;
-    const expectedPullRate = 0.75;
+    const expectedPullRate = 0.5;
     
     // Display results
     console.log('\n=== ROLL SIMULATION TEST RESULTS ===');
